@@ -19,16 +19,5 @@ if __name__ == "__main__":
 
     while True:
     	video.playVideo()
-    #     ret, img = cap.read()
-    #     if (type(img) == type(None)):
-    #         break
-        
-    #     img_cars = vehicleDetector.detect_cars(img.copy())
-        
 
-
-    #     cv2.imshow('video', img_cars)        
-    #     if cv2.waitKey(33) == 27:
-    #         break
-
-    # cv2.destroyAllWindows()
+    cv2.destroyAllWindows()

@@ -26,23 +26,17 @@ class Length(object):
             return self.length_list[self.pointer]
 
 
-
-
-
 class VehicleDetector(object):
     
-
     def __init__(self, cascade_src):
         self.len_object = Length()
         self.length = 0
         self.car_cascade = cv2.CascadeClassifier(cascade_src)
         
-
     def detect_cars(self, img):
         crop_x_start = 130
         crop_x_end = 460
 
-        
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         crop = gray[:,crop_x_start:crop_x_end]
 
@@ -68,7 +62,6 @@ class VehicleDetector(object):
         cv2.putText(img, str(self.length), (100,270), font, 2, (0,0,0), 2, cv2.LINE_AA)
 
         return img
-
 
     def find_ave_y(self, contour):
         return float(sum(pair[0][1] for pair in contour)) / len(contour)
