@@ -37,11 +37,12 @@ class VehicleDetector(object):
     def detect_cars(self, img):
         crop_x_start = CROP_X_START
         crop_x_end = CROP_X_END
+        window_size = MIN_WINDOW_SIZE
 
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         crop = gray[:,crop_x_start:crop_x_end]
 
-        cars = self.car_cascade.detectMultiScale(crop, 1.2, 2, 0, (80,80))
+        cars = self.car_cascade.detectMultiScale(crop, 1.2, 2, 0, (window_size, window_size))
 
         # sorted with width and get the one with largest width
         cars = sorted(cars, key=lambda one_car: one_car[2], reverse=True)
@@ -92,7 +93,7 @@ class VehicleDetector(object):
                 max_y = ave_y
 
         length = self.find_max_length(contours[max_index])
-        if length <= 30:
+        if length <= MIN_LENGTH:
             print contours[max_index]
 
         return length
@@ -117,7 +118,6 @@ class VehicleDetector(object):
         cv2.drawContours(erod, contours, -1, (0,255,0), 3)
         length = self.find_length(contours, len(car_picture[0]))
         return erod, length
-
 
     def hough_line(self, car_pic):
         edges = cv2.Canny(car_pic, 100, 200)

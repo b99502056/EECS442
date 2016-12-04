@@ -14,6 +14,7 @@ class Video(object):
         if self.vehicleDetectorSet:
             img = self.vehicleDetector.detect_cars(img.copy())
 
+        img = cv2.resize(img, (960, 540), interpolation=cv2.INTER_CUBIC)
         cv2.imshow('video', img)
 
         if cv2.waitKey(33) == 27:
