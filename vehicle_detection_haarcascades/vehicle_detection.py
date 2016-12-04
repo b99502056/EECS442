@@ -3,6 +3,7 @@
 import cv2
 import numpy as np
 from math import pi
+from config import *
 
 class Length(object):
     arr_len = 5
@@ -34,8 +35,8 @@ class VehicleDetector(object):
         self.car_cascade = cv2.CascadeClassifier(cascade_src)
         
     def detect_cars(self, img):
-        crop_x_start = 130
-        crop_x_end = 460
+        crop_x_start = CROP_X_START
+        crop_x_end = CROP_X_END
 
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         crop = gray[:,crop_x_start:crop_x_end]
@@ -75,7 +76,7 @@ class VehicleDetector(object):
         return maxi - mini
 
     def find_length(self, contours, height):
-        magic_number = 0.85
+        magic_number = MAGIC_NUMBER
         max_index = 0;
         max_y = self.find_ave_y(contours[0])
 
