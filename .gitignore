@@ -1,1 +1,2 @@
 *.pyc
+/vehicle_detection_haarcascades/dataset/*
