@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
     # cap = cv2.VideoCapture(video_src)
     video = Video(video_src)
-    # video.setVehicleDetector(cascade_src)
+    video.setVehicleDetector(cascade_src)
     cc = CameraCalibration()
     cameraMatrix = cc.projectionTransform()
     

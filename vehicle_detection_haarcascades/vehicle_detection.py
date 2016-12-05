@@ -36,7 +36,7 @@ class VehicleDetector(object):
         self.car_speed = CAR_SPEED if 'CAR_SPEED' in globals() else []
         self.count_frame = 0
 
-    def detect_cars(self, img):
+    def detectCars(self, img):
         crop_x_start = CROP_X_START
         crop_x_end = CROP_X_END
         window_size = MIN_WINDOW_SIZE
