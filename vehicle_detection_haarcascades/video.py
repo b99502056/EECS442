@@ -13,12 +13,15 @@ class Video(object):
 
         if self.vehicleDetectorSet:
             img_cars = self.vehicleDetector.detectCars(img.copy())
-            cv2.imshow('video', img_cars)
+            img_resize = cv2.resize(img_cars, (960, 540), interpolation=cv2.INTER_CUBIC)
+            cv2.imshow('video', img_resize)
         else:
-            cv2.imshow('video', img)
+            img_resize = cv2.resize(img, (960, 540), interpolation=cv2.INTER_CUBIC)
+            cv2.imshow('video', img_resize)
 
         if cv2.waitKey(33) == 27:
             return -1        
+
 
     def setVehicleDetector(self, cascade_src):
         if not self.vehicleDetectorSet:

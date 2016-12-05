@@ -3,6 +3,7 @@
 import cv2
 import numpy as np
 from math import pi
+from config import *
 
 class Length(object):
     arr_len = 5
@@ -26,33 +27,30 @@ class Length(object):
             return self.length_list[self.pointer]
 
 
-
-
-
 class VehicleDetector(object):
     
-
     def __init__(self, cascade_src):
         self.len_object = Length()
         self.length = 0
         self.car_cascade = cv2.CascadeClassifier(cascade_src)
-        
+        self.car_speed = CAR_SPEED if 'CAR_SPEED' in globals() else []
+        self.count_frame = 0
 
-    def detectCars(self, img):
-        crop_x_start = 130
-        crop_x_end = 460
+    def detect_cars(self, img):
+        crop_x_start = CROP_X_START
+        crop_x_end = CROP_X_END
+        window_size = MIN_WINDOW_SIZE
 
-        
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         crop = gray[:,crop_x_start:crop_x_end]
 
-        cars = self.car_cascade.detectMultiScale(crop, 1.2, 2, 0, (80,80))
-
+        cars = self.car_cascade.detectMultiScale(crop, 1.2, 2, 0, (window_size, window_size))
+        self.count_frame = self.count_frame + 1
         # sorted with width and get the one with largest width
         cars = sorted(cars, key=lambda one_car: one_car[2], reverse=True)
 
         for (x,y,w,h) in cars:
-            cv2.rectangle(img,(x+crop_x_start,y),(x+crop_x_start+w,y+h),(0,0,255),2)
+            cv2.rectangle(img,(x+crop_x_start,y), (x+crop_x_start+w,y+h), (0,0,255), 2)
 
         if cars:
             car_x, car_y, car_w, car_h = cars[0]
@@ -65,13 +63,17 @@ class VehicleDetector(object):
             img[car_y : car_y+car_h, crop_x_start+car_x : crop_x_start+car_x+car_w] = sub_img
 
         font = cv2.FONT_HERSHEY_SIMPLEX
-        cv2.putText(img, str(self.length), (100,270), font, 2, (0,0,0), 2, cv2.LINE_AA)
 
+        if self.car_speed:
+            index = self.count_frame*2/FRAME_PER_SEC
+            speed = self.car_speed[index]
+            cv2.putText(img, "actual speed: "+str(speed), (ACT_SPEED_X, ACT_SPEED_Y), font, 2, (0,0,0), 2, cv2.LINE_AA)
+        
+        cv2.putText(img, "pixel: "+str(self.length), (PIXEL_X, PIXEL_Y), font, 2, (0,0,0), 2, cv2.LINE_AA)
         return img
 
     def carWidthPixel(self):
         return self.length
-
 
     def find_ave_y(self, contour):
         return float(sum(pair[0][1] for pair in contour)) / len(contour)
@@ -85,13 +87,12 @@ class VehicleDetector(object):
         return maxi - mini
 
     def find_length(self, contours, height):
-        magic_number = 0.85
+        magic_number = MAGIC_NUMBER
         max_index = 0;
         max_y = self.find_ave_y(contours[0])
 
         for i in range(0, len(contours)):
             ave_y = self.find_ave_y(contours[i])
-
             # Find the countour cluster has maxmimum
             # Cannot be the dot around lower corners 
             if (ave_y > max_y and
@@ -101,9 +102,8 @@ class VehicleDetector(object):
                 max_y = ave_y
 
         length = self.find_max_length(contours[max_index])
-        if length <= 30:
+        if length <= MIN_LENGTH:
             print contours[max_index]
-
         return length
 
     def convert_binary(self, thresh):
@@ -126,7 +126,6 @@ class VehicleDetector(object):
         cv2.drawContours(erod, contours, -1, (0,255,0), 3)
         length = self.find_length(contours, len(car_picture[0]))
         return erod, length
-
 
     def hough_line(self, car_pic):
         edges = cv2.Canny(car_pic, 100, 200)
