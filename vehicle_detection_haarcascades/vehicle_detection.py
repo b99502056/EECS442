@@ -38,7 +38,7 @@ class VehicleDetector(object):
         self.car_cascade = cv2.CascadeClassifier(cascade_src)
         
 
-    def detect_cars(self, img):
+    def detectCars(self, img):
         crop_x_start = 130
         crop_x_end = 460
 
@@ -68,6 +68,9 @@ class VehicleDetector(object):
         cv2.putText(img, str(self.length), (100,270), font, 2, (0,0,0), 2, cv2.LINE_AA)
 
         return img
+
+    def carWidthPixel(self):
+        return self.length
 
 
     def find_ave_y(self, contour):

@@ -9,20 +9,16 @@ class Video(object):
     def playVideo(self):
         ret, img = self.cap.read()
         if (type(img) == type(None)):
-            return
+            return -1
 
         if self.vehicleDetectorSet:
-            img_cars = self.vehicleDetector.detect_cars(img.copy())
+            img_cars = self.vehicleDetector.detectCars(img.copy())
             cv2.imshow('video', img_cars)
         else:
             cv2.imshow('video', img)
 
-
         if cv2.waitKey(33) == 27:
-            cv2.destroyAllWindows()
-
-
-        
+            return -1        
 
     def setVehicleDetector(self, cascade_src):
         if not self.vehicleDetectorSet:

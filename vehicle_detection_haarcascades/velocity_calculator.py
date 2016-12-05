@@ -1,4 +1,11 @@
+import numpy as np
 
 
-class Velocity(object):
-	
+class VelocityEstimator(object):
+	def __init__(self, cameraMatrix):
+		self.cameraMatrix = cameraMatrix
+		self.carWidthWorld = 180 # Car width assumption in real world. Unit: cm
+		self.previousDepth = 0
+		self.currentDepth = 0
+
+	def vehicleSpeed(self, carWidthPixel):
