@@ -3,11 +3,12 @@ import numpy as np
 from vehicle_detection import VehicleDetector 
 from camera_calibration import CameraCalibration
 from video import Video
+from config import *
 
 if __name__ == "__main__":
     
     cascade_src = 'cars.xml'
-    video_src = 'dataset/test.mp4'
+    video_src = VIDEO_SRC
 
     # cap = cv2.VideoCapture(video_src)
     video = Video(video_src)
