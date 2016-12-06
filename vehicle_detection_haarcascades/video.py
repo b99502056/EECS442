@@ -21,7 +21,8 @@ class Video(object):
         img_resize = cv2.resize(img, (960, 540), interpolation=cv2.INTER_CUBIC)
         cv2.imshow('video', img_resize)
 
-        if self.out:
+
+        if 'self.out' in locals():
             self.out.write(img_resize)
 
         if cv2.waitKey(33) == 27:
