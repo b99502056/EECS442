@@ -13,25 +13,27 @@ class Video(object):
         
         self.vehicleDetector = VehicleDetector(cascade_src)
         self.speedEstimator = SpeedEstimator(cameraMatrix)
+        self.count = 0
 
     def playVideo(self):
         ret, img = self.cap.read()
         if (type(img) == type(None)):
             return -1
 
-        img = self.renderCars(img.copy())
+        self.count = self.count + 1
+        if self.count > 200 and self.count < 330:
+            img = self.renderCars(img.copy())
 
-        img = self.renderSpeed(img.copy())
-        
+            img = self.renderSpeed(img.copy())
 
-        img_resize = cv2.resize(img, (960, 540), interpolation=cv2.INTER_CUBIC)
-        cv2.imshow('video', img_resize)
+            img_resize = cv2.resize(img, (960, 540), interpolation=cv2.INTER_CUBIC)
+            cv2.imshow('video', img_resize)
 
-        if 'self.out' in locals():
-            self.out.write(img_resize)
+            if 'self.out' in locals():
+                self.out.write(img_resize)
 
-        if cv2.waitKey(33) == 27:
-            return -1        
+            if cv2.waitKey(33) == 27:
+                return -1        
 
     def renderCars(self, img):
         img_cars = self.vehicleDetector.detectCars(img)
