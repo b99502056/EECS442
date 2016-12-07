@@ -1,28 +1,28 @@
 import cv2
 from vehicle_detection import VehicleDetector 
+from velocity_calculator import SpeedEstimator
 from config import *
 
+
 class Video(object):
-    def __init__(self, video_src, cameraMatrix):
+    def __init__(self, video_src, cascade_src, cameraMatrix):
         self.cap = cv2.VideoCapture(video_src)
         if "OUTPUT_VIDEO" in globals():
             self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
             self.out = cv2.VideoWriter(OUTPUT_VIDEO, self.fourcc, FRAME_PER_SEC, (960, 540))
-        self.vehicleDetectorSet = False
-        self.speedEstimatorSet = False
-        self.cameraMatrix = cameraMatrix
+        
+        self.vehicleDetector = VehicleDetector(cascade_src)
+        self.speedEstimator = SpeedEstimator(cameraMatrix)
 
     def playVideo(self):
         ret, img = self.cap.read()
         if (type(img) == type(None)):
             return -1
 
-        if self.vehicleDetectorSet:
-            img = self.vehicleDetector.detectCars(img.copy())
+        img = self.renderCars(img.copy())
 
-            if self.speedEstimatorSet:
-                bumperSides = self.vehicleDetector.bumperSides()
-                img = self.speedEstimator(bumperSides, FRAME_PER_SEC)
+        img = self.renderSpeed(img.copy())
+        
 
         img_resize = cv2.resize(img, (960, 540), interpolation=cv2.INTER_CUBIC)
         cv2.imshow('video', img_resize)
@@ -33,13 +33,14 @@ class Video(object):
         if cv2.waitKey(33) == 27:
             return -1        
 
+    def renderCars(self, img):
+        img_cars = self.vehicleDetector.detectCars(img)
+        return img_cars
 
-    def setVehicleDetector(self, cascade_src):
-        if not self.vehicleDetectorSet:
-            self.vehicleDetector = VehicleDetector(cascade_src)
-            self.vehicleDetectorSet = True
+    def renderSpeed(self, img):
+        bumperSides = self.vehicleDetector.bumperSidePoints()
+        speed = self.speedEstimator.vehicleSpeed(bumperSides, FRAME_PER_SEC)
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        cv2.putText(img, "estimated speed: "+str(speed), (EST_SPEED_X, EST_SPEED_Y), font, 2, (0,0,0), 2, cv2.LINE_AA)
 
-    # def setSpeedEstimator(self, cameraMatrix):
-    #     if not self.speedEstimatorSet:
-    #         self.speedEstimator = SpeedEstimator(cameraMatrix)
-    #         self.speedEstimatorSet = True
+        return img

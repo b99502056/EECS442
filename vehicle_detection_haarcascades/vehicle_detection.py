@@ -80,7 +80,7 @@ class VehicleDetector(object):
         cv2.putText(img, "pixel: "+str(self.length), (PIXEL_X, PIXEL_Y), font, 2, (0,0,0), 2, cv2.LINE_AA)
         return img
 
-    def bumperSides(self):
+    def bumperSidePoints(self):
         # contour[0]: left side of the bumper, contour[1]: right side of the bumper
         return [[self.min_x, self.max_y], [self.max_x, self.max_y]]
 

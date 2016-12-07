@@ -4,6 +4,7 @@
 
 MAGIC_NUMBER = 0.85
 FRAME_PER_SEC = 29.97 # FPS for mp4 files
+CAR_WIDTH_WORLD = 180 # unit: cm
 
 # OUTPUT_VIDEO = 'output.avi'
 
@@ -41,6 +42,8 @@ PIXEL_X = 100
 PIXEL_Y = 270
 ACT_SPEED_X = 100
 ACT_SPEED_Y = 600
+EST_SPEED_X = 100
+EST_SPEED_Y = 400
 # Split by 0.5 sec, start from 0 sec
 CAR_SPEED_PARAMETER = 24
 CAR_SPEED = [0,  0,  0,  0, 0,
