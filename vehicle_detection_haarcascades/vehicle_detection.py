@@ -16,15 +16,15 @@ class Length(object):
             self.length_list = length*np.ones(self.arr_len)
             self.pointer = 1
             self.is_first = False
-            return length
+            return length, True
         elif (length > MIN_LENGTH):
             self.length_list[self.pointer] = length
             self.pointer += 1
             if self.pointer == self.arr_len:
                 self.pointer = 0
-            return sum(self.length_list)/self.arr_len
+            return sum(self.length_list)/self.arr_len, True
         else:
-            return self.length_list[self.pointer]
+            return self.length_list[self.pointer], False
 
 
 class VehicleDetector(object):
@@ -60,13 +60,12 @@ class VehicleDetector(object):
             car_x, car_y, car_w, car_h = cars[0]
             car_pic = crop[car_y:car_y+car_h, car_x:car_x+car_w]
 
-            # sub_img = hough_line(car_pic)
-            sub_img, length = self.contour(car_pic)
-            # if self.count_frame - self.last_count > 20:
-            #     self.len_object = Length()
-            # self.last_count = self.count_frame
+            sub_img, length, min_x, max_x = self.contour(car_pic)
 
-            self.length = self.len_object.smooth(length)
+            self.length, self.is_valid = self.len_object.smooth(length)
+            if self.is_valid:
+                self.min_x = min_x
+                self.max_x = max_x
 
             img[car_y : car_y+car_h, crop_x_start+car_x : crop_x_start+car_x+car_w] = sub_img
 
@@ -95,7 +94,6 @@ class VehicleDetector(object):
 
         mini = contour[0][0][0]
         maxi = contour[len(contour)-1][0][0]
-        self.bumperSides = [contour[0], contour[1]]
         return maxi - mini, mini, maxi
 
     def find_length(self, contours, height):
@@ -114,8 +112,8 @@ class VehicleDetector(object):
                 max_y = ave_y
 
         self.max_y = max_y
-        length, self.min_x, self.max_x = self.find_max_length(contours[max_index])
-        return length
+        length, min_x, max_x = self.find_max_length(contours[max_index])
+        return length, min_x, max_x
 
     def convert_binary(self, thresh):
         row = len(thresh)
@@ -134,13 +132,15 @@ class VehicleDetector(object):
         # thresh = convert_binary(thresh)
         im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         erod = cv2.merge((erod, erod, erod))
+        min_x = self.min_x
+        max_x = self.max_x
 
         if contours:
             cv2.drawContours(erod, contours, -1, (0,255,0), 3)
-            length = self.find_length(contours, len(car_picture[0]))
+            length, min_x, max_x = self.find_length(contours, len(car_picture[0]))
         else:
             length = 0
-        return erod, length
+        return erod, length, min_x, max_x
 
     def hough_line(self, car_pic):
         edges = cv2.Canny(car_pic, 100, 200)
