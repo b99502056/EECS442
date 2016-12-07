@@ -2,6 +2,7 @@ import cv2
 from camera_calibration import CameraCalibration
 from video import Video
 from config import *
+from velocity_calculator import SpeedEstimator
 
 if __name__ == "__main__":
     
@@ -13,11 +14,16 @@ if __name__ == "__main__":
     video.setVehicleDetector(cascade_src)
     cc = CameraCalibration()
     cameraMatrix = cc.projectionTransform()
+    video.setSpeedEstimator(cameraMatrix) 
     
 
     while True:
     	if video.playVideo() == -1:
     		break
+
+        # calculate the vehicle velocity
+        bumperSides = video.vehicleDetector.bumperSides
+
     #     ret, img = cap.read()
     #     if (type(img) == type(None)):
     #         break

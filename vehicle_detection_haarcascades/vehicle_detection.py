@@ -72,6 +72,11 @@ class VehicleDetector(object):
         cv2.putText(img, "pixel: "+str(self.length), (PIXEL_X, PIXEL_Y), font, 2, (0,0,0), 2, cv2.LINE_AA)
         return img
 
+    def bumperSides(self):
+        if find_length
+        # contour[0]: left side of the bumper, contour[1]: right side of the bumper
+        return [contour[0], contour[1]]
+
     def carWidthPixel(self):
         return self.length
 
@@ -83,7 +88,7 @@ class VehicleDetector(object):
 
         mini = contour[0][0][0]
         maxi = contour[len(contour)-1][0][0]
-
+        self.bumperSides = [contour[0], contour[1]]
         return maxi - mini
 
     def find_length(self, contours, height):

@@ -114,3 +114,5 @@ class CameraCalibration(object):
 		# print "img points: \n", np.transpose(self.Pi)
 		# print "calculatedImgPoints: \n", calculatedImgPoints
 		print "Calibration RMS error: ", RMSError
+
+	

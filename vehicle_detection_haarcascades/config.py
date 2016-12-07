@@ -3,7 +3,7 @@
 ###########
 
 MAGIC_NUMBER = 0.85
-FRAME_PER_SEC = 24
+FRAME_PER_SEC = 29.97 # FPS for mp4 files
 
 
 ###########
