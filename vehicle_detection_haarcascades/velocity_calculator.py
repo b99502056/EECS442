@@ -8,4 +8,4 @@ class SpeedEstimator(object):
 		self.previousDepth = 0
 		self.currentDepth = 0
 
-	def vehicleSpeed(self, bumperSides, fps):
+	# def vehicleSpeed(self, bumperSides, fps):

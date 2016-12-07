@@ -5,6 +5,9 @@ from config import *
 class Video(object):
     def __init__(self, video_src, cameraMatrix):
         self.cap = cv2.VideoCapture(video_src)
+        if "OUTPUT_VIDEO" in globals():
+            self.fourcc = cv2.VideoWriter_fourcc(*'XVID')
+            self.out = cv2.VideoWriter(OUTPUT_VIDEO, self.fourcc, FRAME_PER_SEC, (960, 540))
         self.vehicleDetectorSet = False
         self.speedEstimatorSet = False
         self.cameraMatrix = cameraMatrix
@@ -15,18 +18,17 @@ class Video(object):
             return -1
 
         if self.vehicleDetectorSet:
-            img_cars = self.vehicleDetector.detectCars(img.copy())
+            img = self.vehicleDetector.detectCars(img.copy())
 
             if self.speedEstimatorSet:
                 bumperSides = self.vehicleDetector.bumperSides()
-                img_cars = self.speedEstimator(bumperSides, FRAME_PER_SEC)
+                img = self.speedEstimator(bumperSides, FRAME_PER_SEC)
 
+        img_resize = cv2.resize(img, (960, 540), interpolation=cv2.INTER_CUBIC)
+        cv2.imshow('video', img_resize)
 
-            img_resize = cv2.resize(img_cars, (960, 540), interpolation=cv2.INTER_CUBIC)
-            cv2.imshow('video', img_resize)
-        else:
-            img_resize = cv2.resize(img, (960, 540), interpolation=cv2.INTER_CUBIC)
-            cv2.imshow('video', img_resize)
+        if 'self.out' in locals():
+            self.out.write(img_resize)
 
         if cv2.waitKey(33) == 27:
             return -1        
@@ -37,7 +39,7 @@ class Video(object):
             self.vehicleDetector = VehicleDetector(cascade_src)
             self.vehicleDetectorSet = True
 
-    def setSpeedEstimator(self, cameraMatrix):
-        if not self.speedEstimatorSet:
-            self.speedEstimator = SpeedEstimator(cameraMatrix)
-            self.speedEstimatorSet = True
+    # def setSpeedEstimator(self, cameraMatrix):
+    #     if not self.speedEstimatorSet:
+    #         self.speedEstimator = SpeedEstimator(cameraMatrix)
+    #         self.speedEstimatorSet = True

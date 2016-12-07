@@ -10,30 +10,23 @@ if __name__ == "__main__":
     video_src = VIDEO_SRC
 
     # cap = cv2.VideoCapture(video_src)
-    video = Video(video_src)
-    video.setVehicleDetector(cascade_src)
     cc = CameraCalibration()
     cameraMatrix = cc.projectionTransform()
-    video.setSpeedEstimator(cameraMatrix) 
+
+    video = Video(video_src, cameraMatrix)
+    video.setVehicleDetector(cascade_src)
+    # video.setSpeedEstimator(cameraMatrix) 
     
 
     while True:
     	if video.playVideo() == -1:
     		break
-
         # calculate the vehicle velocity
         bumperSides = video.vehicleDetector.bumperSides
 
-    #     ret, img = cap.read()
-    #     if (type(img) == type(None)):
-    #         break
-        
-    #     img_cars = vehicleDetector.detect_cars(img.copy())
-        
+    video.cap.release()
 
-
-    #     cv2.imshow('video', img_cars)        
-    #     if cv2.waitKey(33) == 27:
-    #         break
+    if video.out:
+        video.out.release()
 
     cv2.destroyAllWindows()
