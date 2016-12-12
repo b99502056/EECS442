@@ -34,13 +34,11 @@ class VehicleDetector(object):
         self.length = 0
         self.car_cascade = cv2.CascadeClassifier(cascade_src)
         self.car_speed = CAR_SPEED if 'CAR_SPEED' in globals() else []
-        self.count_frame = 0
-        self.last_count = 0
         self.max_y = 0
         self.min_x = 0
         self.max_x = 0
 
-    def detectCars(self, img):
+    def detectCars(self, img, count):
         crop_x_start = CROP_X_START
         crop_x_end = CROP_X_END
         window_size = MIN_WINDOW_SIZE
@@ -49,7 +47,6 @@ class VehicleDetector(object):
         crop = gray[:,crop_x_start:crop_x_end]
 
         cars = self.car_cascade.detectMultiScale(crop, 1.2, 2, 0, (window_size, window_size))
-        self.count_frame = self.count_frame + 1
         # sorted with width and get the one with largest width
         cars = sorted(cars, key=lambda one_car: one_car[2], reverse=True)
 
@@ -72,7 +69,7 @@ class VehicleDetector(object):
         font = cv2.FONT_HERSHEY_SIMPLEX
 
         if self.car_speed:
-            index = self.count_frame*2/CAR_SPEED_PARAMETER
+            index = count*2/CAR_SPEED_PARAMETER
             speed = self.car_speed[index]
             cv2.putText(img, "actual speed: "+str(speed), (ACT_SPEED_X, ACT_SPEED_Y), font, 2, (0,0,0), 2, cv2.LINE_AA)
         
