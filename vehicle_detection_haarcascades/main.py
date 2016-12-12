@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
     video.cap.release()
 
-    if video.out:
+    if hasattr(video, 'out'):
         video.out.release()
 
     cv2.destroyAllWindows()
