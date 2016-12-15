@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import cv2
 import numpy as np
 from math import pi
@@ -37,7 +36,8 @@ class VehicleDetector(object):
         self.max_y = 0
         self.min_x = 0
         self.max_x = 0
-
+        self.is_valid = False
+        
     def detectCars(self, img, count):
         crop_x_start = CROP_X_START
         crop_x_end = CROP_X_END
@@ -57,12 +57,14 @@ class VehicleDetector(object):
             car_x, car_y, car_w, car_h = cars[0]
             car_pic = crop[car_y:car_y+car_h, car_x:car_x+car_w]
 
-            sub_img, length, min_x, max_x = self.contour(car_pic)
+            sub_img, length, min_x, max_x, max_y = self.contour(car_pic)
 
             self.length, self.is_valid = self.len_object.smooth(length)
             if self.is_valid:
                 self.min_x = min_x
                 self.max_x = max_x
+                self.max_y = max_y
+            print self.max_y
 
             img[car_y : car_y+car_h, crop_x_start+car_x : crop_x_start+car_x+car_w] = sub_img
 
@@ -71,10 +73,11 @@ class VehicleDetector(object):
         if self.car_speed:
             index = count*2/CAR_SPEED_PARAMETER
             speed = self.car_speed[index]
+            print "actual speed: "+str(speed)
             cv2.putText(img, "actual speed: "+str(speed), (ACT_SPEED_X, ACT_SPEED_Y), font, 2, (0,0,0), 2, cv2.LINE_AA)
         
         cv2.putText(img, "pixel: "+str(self.length), (PIXEL_X, PIXEL_Y), font, 2, (0,0,0), 2, cv2.LINE_AA)
-        return img
+        return img, speed
 
     def bumperSidePoints(self):
         # contour[0]: left side of the bumper, contour[1]: right side of the bumper
@@ -87,11 +90,15 @@ class VehicleDetector(object):
         return float(sum(pair[0][1] for pair in contour)) / len(contour)
 
     def find_max_length(self, contour):
-        contour = sorted(contour, key=lambda pair: pair[0][0])
+        contour_x = sorted(contour, key=lambda pair: pair[0][0])
 
-        mini = contour[0][0][0]
-        maxi = contour[len(contour)-1][0][0]
-        return maxi - mini, mini, maxi
+        mini = contour_x[0][0][0]
+        maxi = contour_x[len(contour)-1][0][0]
+
+        contour_y = sorted(contour, key=lambda pair: pair[0][1], reverse=True)
+        maxy = contour_y[0][0][1]
+
+        return maxi - mini, mini, maxi, maxy
 
     def find_length(self, contours, height):
         magic_number = MAGIC_NUMBER
@@ -108,9 +115,8 @@ class VehicleDetector(object):
                 max_index = i
                 max_y = ave_y
 
-        self.max_y = max_y
-        length, min_x, max_x = self.find_max_length(contours[max_index])
-        return length, min_x, max_x
+        length, min_x, max_x, max_y = self.find_max_length(contours[max_index])
+        return length, min_x, max_x, max_y
 
     def convert_binary(self, thresh):
         row = len(thresh)
@@ -122,7 +128,7 @@ class VehicleDetector(object):
 
     def contour(self, car_picture):
         kernel = np.ones((5,5), np.uint8)
-        car_pic = cv2.GaussianBlur(car_picture, (17, 17), 1)
+        car_pic = cv2.GaussianBlur(car_picture, (17, 17), 1.2)
         erod =  cv2.erode(car_pic, kernel, iterations=1)
 
         ret, thresh = cv2.threshold(erod, 40, 255, cv2.THRESH_BINARY)
@@ -134,10 +140,10 @@ class VehicleDetector(object):
 
         if contours:
             cv2.drawContours(erod, contours, -1, (0,255,0), 3)
-            length, min_x, max_x = self.find_length(contours, len(car_picture[0]))
+            length, min_x, max_x, max_y = self.find_length(contours, len(car_picture[0]))
         else:
             length = 0
-        return erod, length, min_x, max_x
+        return erod, length, min_x, max_x, max_y
 
     def hough_line(self, car_pic):
         edges = cv2.Canny(car_pic, 100, 200)
@@ -149,3 +155,4 @@ class VehicleDetector(object):
             cv2.line(edges, pt1, pt2, (0,0,255), 3)
         return edges
 
+    

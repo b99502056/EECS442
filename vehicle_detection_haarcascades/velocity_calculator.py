@@ -9,8 +9,10 @@ class SpeedEstimator(object):
         # self.carWidthWorld = 180 # Car width assumption in real world. Unit: cm
         self.previousDepth = 0
         self.currentDepth = 0
+        self.previous_count = 0
+        self.curr_cm_depth = 0
 
-    def vehicleSpeed(self, bumperSides, fps):
+    def vehicleSpeed(self, bumperSides, count):
         bumperSides[0].append(1)
         bumperSides[1].append(1)
         bumperLeft = np.array(bumperSides[0])
@@ -27,20 +29,28 @@ class SpeedEstimator(object):
         # assumed value
         scale = CAR_WIDTH_WORLD / (abs(bumperLeftWorld[0] - bumperRightWorld[0]))
 
-        print 'bumperRightWorld', bumperRightWorld * scale
-        print 'bumperLeftWorld', bumperLeftWorld * scale
+        # print 'bumperRightWorld', bumperRightWorld * scale
+        # print 'bumperLeftWorld', bumperLeftWorld * scale
+        self.curr_cm_depth = scale * bumperLeftWorld[2]
+        print "CurrentDepth: " , self.curr_cm_depth
 
         # real depth of the car is scale * z coordinate
         self.currentDepth = self.cm2mile(scale * bumperLeftWorld[2])
-        print "CurrentDepth: " , scale * bumperLeftWorld[2]
+        
         if self.previousDepth == 0: # First loop, ignore
             self.previousDepth = self.currentDepth
+            self.previous_count = count
             return 0
         else:
-            speed = (self.previousDepth - self.currentDepth) / self.s2hr(1 / FRAME_PER_SEC)
+            speed = (self.previousDepth - self.currentDepth) / self.s2hr((count - self.previous_count) / FRAME_PER_SEC)
             self.previousDepth = self.currentDepth
+            self.previous_count = count
             print 'speed ', speed
+            print '---------------------------'
             return speed
+
+    def get_curr_cm_depth(self):
+        return self.curr_cm_depth
 
     def cm2mile(self, cm):
         return cm*6.21371e-6
